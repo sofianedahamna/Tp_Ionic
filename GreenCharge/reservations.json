@@ -1,0 +1,155 @@
+{
+  "reservation": [
+    {
+      "id": 1,
+      "beginDate": "10/03/2022",
+      "beginHour": "14:30",
+      "endDate": "10/03/2022",
+      "endHour": "15:30",
+      "adress": {
+        "street": "123 Rue de la Rose",
+        "postCode": "75001",
+        "city": "Paris"
+      },
+      "chargingpoint": {
+        "name": "Sophie"
+      }
+    },
+    {
+      "id": 2,
+      "beginDate": "15/05/2024",
+      "beginHour": "09:15",
+      "endDate": "15/05/2024",
+      "endHour": "10:15",
+      "adress": {
+        "street": "456 Avenue du Soleil",
+        "postCode": "69002",
+        "city": "Lyon"
+      },
+      "chargingpoint": {
+        "name": "Tom"
+      }
+    },
+    {
+      "id": 3,
+      "beginDate": "07/07/2022",
+      "beginHour": "17:45",
+      "endDate": "07/07/2022",
+      "endHour": "18:45",
+      "adress": {
+        "street": "789 Boulevard de la Lune",
+        "postCode": "31000",
+        "city": "Toulouse"
+      },
+      "chargingpoint": {
+        "name": "Laura"
+      }
+    },
+    {
+      "id": 4,
+      "beginDate": "18/09/2024",
+      "beginHour": "14:20",
+      "endDate": "18/09/2024",
+      "endHour": "15:20",
+      "adress": {
+        "street": "1010 Rue des Étoiles",
+        "postCode": "13001",
+        "city": "Marseille"
+      },
+      "chargingpoint": {
+        "name": "Max"
+      }
+    },
+    {
+      "id": 5,
+      "beginDate": "12/03/2022",
+      "beginHour": "10:30",
+      "endDate": "12/03/2022",
+      "endHour": "11:30",
+      "adress": {
+        "street": "555 Avenue de la Mer",
+        "postCode": "44000",
+        "city": "Nantes"
+      },
+      "chargingpoint": {
+        "name": "Liam"
+      }
+    },
+    {
+      "id": 6,
+      "beginDate": "30/04/2024",
+      "beginHour": "18:45",
+      "endDate": "30/04/2024",
+      "endHour": "19:45",
+      "adress": {
+        "street": "222 Rue des Nuages",
+        "postCode": "69003",
+        "city": "Lyon"
+      },
+      "chargingpoint": {
+        "name": "Olivia"
+      }
+    },
+    {
+      "id": 7,
+      "beginDate": "19/06/2022",
+      "beginHour": "11:00",
+      "endDate": "19/06/2022",
+      "endHour": "12:00",
+      "adress": {
+        "street": "777 Boulevard de l'Arc-en-Ciel",
+        "postCode": "75002",
+        "city": "Paris"
+      },
+      "chargingpoint": {
+        "name": "Noah"
+      }
+    },
+    {
+      "id": 8,
+      "beginDate": "11/08/2024",
+      "beginHour": "16:15",
+      "endDate": "11/08/2024",
+      "endHour": "17:15",
+      "adress": {
+        "street": "888 Avenue des Fleurs",
+        "postCode": "31001",
+        "city": "Toulouse"
+      },
+      "chargingpoint": {
+        "name": "Ava"
+      }
+    },
+    {
+      "id": 9,
+      "beginDate": "02/10/2022",
+      "beginHour": "21:30",
+      "endDate": "02/10/2022",
+      "endHour": "22:30",
+      "adress": {
+        "street": "999 Rue de la Nuit",
+        "postCode": "13002",
+        "city": "Marseille"
+      },
+      "chargingpoint": {
+        "name": "Ethan"
+      }
+    },
+    {
+      "id": 10,
+      "beginDate": "18/09/2024",
+      "beginHour": "14:20",
+      "endDate": "18/09/2024",
+      "endHour": "15:20",
+      "adress": {
+        "street": "1010 Rue des Étoiles",
+        "postCode": "13001",
+        "city": "Marseille"
+      },
+      "chargingpoint": {
+        "name": "Max"
+      }
+    }
+
+  ]
+}

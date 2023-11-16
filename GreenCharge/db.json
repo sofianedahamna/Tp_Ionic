@@ -1,0 +1,50 @@
+{
+  "bornes": [
+    {
+      "name": "Test",
+      "status": "ouvert",
+      "ratePerHour": "10",
+      "plugType": "rapide",
+      "accessInstructions": "Passe",
+      "address": "167 rue sainte barbe",
+      "city": "MONTPELLIER",
+      "postalCode": "34000",
+      "availabilities": [
+        {
+          "startDate": "2023-10-18",
+          "endDate": "2023-10-31",
+          "startHour": "19:56",
+          "endHour": "22:56"
+        }
+      ],
+      "id": 1,
+      "currency": "€"
+    },
+    {
+      "name": "hibou",
+      "status": "ouvert",
+      "ratePerHour": "10",
+      "currency": "€",
+      "plugType": "lente",
+      "accessInstructions": "Voler",
+      "address": "hibou des montagnes",
+      "city": "hibouland",
+      "postalCode": "52000",
+      "availabilities": [
+        {
+          "startDate": "2023-11-17",
+          "endDate": "2023-12-15",
+          "startHour": "00:00",
+          "endHour": "23:09"
+        },
+        {
+          "startDate": "2023-11-30",
+          "endDate": "2023-12-15",
+          "startHour": "00:00",
+          "endHour": "23:50"
+        }
+      ],
+      "id": 3
+    }
+  ]
+}

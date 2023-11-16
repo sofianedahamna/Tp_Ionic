@@ -1,0 +1,29 @@
+{
+    "bornes": [
+      {
+        "ID": 1,
+        "AddressInfo": {
+          "Title": "Ma borne de recharge de particulier",
+          "Latitude": 43.575366,
+          "Longitude": 3.946561,
+          "AddressLine1": "2 Rue Alfred Nobel",
+          "City": "Pérols",
+          "Country": "France",
+          "Postcode": "34470",
+          "Status":"private"
+        },
+        "Connections": [
+          {
+            "ID": 1,
+            "ConnectionTypeID": 1,
+            "ConnectionType": {
+              "ID": 1,
+              "Title": "Type 2 (IEC 62196) Outlet",
+              "FormalName": "Type 2"
+            },
+            "PowerKW": 22
+          }
+        ]
+      }
+    ]
+  }
