@@ -21,7 +21,7 @@ const useStyles = makeStyles({
     margin: 'auto',
   },
   textField: {
-    marginBottom: '0.5rem',  // Espacement augmenté entre les champs
+    marginBottom: '3rem',  // Espacement augmenté entre les champs
     width: '100%',
   },
   submitButton: {

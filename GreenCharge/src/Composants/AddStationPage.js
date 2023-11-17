@@ -1,5 +1,4 @@
-// src/Composants/AddStationPage.js
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Button,
   TextField,
@@ -17,15 +16,19 @@ import {
 import useStyles from "../styles/AddStationStyles";
 import { useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
+import { UserContext } from '../UserContext';
 
 function AddStationPage() {
+  const userId = useContext(UserContext);
+  const [error, setError] = useState(''); // Pour gérer les erreurs
+  const [isLoading, setIsLoading] = useState(false); // Pour afficher un indicateur de chargement
   const [currency, setCurrency] = useState("€");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [status, setStatus] = useState("ouvert"); // ou 'fermé' selon votre besoin
   const [plugType, setPlugType] = useState("rapide");
-
+  const [powerkw, setPowerKw] = useState("");
   const [availabilities, setAvailabilities] = useState([]);
   const [newAvailability, setNewAvailability] = useState({
     startDate: "",
@@ -41,6 +44,7 @@ function AddStationPage() {
     ratePerHour: "",
     plugType: "",
     accessInstructions: "",
+    powerkw: "",
   });
   const handleCurrencyChange = (event) => {
     setCurrency(event.target.value);
@@ -75,34 +79,63 @@ function AddStationPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
     try {
-      const response = await fetch("http://localhost:5000/bornes", {
+      const addressData = {
+        street_number: '123', // Remplacez par la valeur appropriée
+        street: address,
+        city: city,
+        state: 'State', // Remplacez par la valeur appropriée
+        post_code: postalCode,
+        country: 'Country', // Remplacez par la valeur appropriée
+        title: 'Title', // Remplacez par la valeur appropriée
+        longitude: 0.0, // Remplacez par la valeur appropriée
+        latitude: 0.0 // Remplacez par la valeur appropriée
+      };
+
+      const addressResponse = await fetch('http://localhost:8000/api/addresses', {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: fields.name,
-          status: status,
-          ratePerHour: fields.ratePerHour,
-          currency: currency,
-          plugType: plugType,
-          accessInstructions: fields.accessInstructions,
-          address: address,
-          city: city,
-          postalCode: postalCode,
-          availabilities: availabilities,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addressData)
       });
-      if (!response.ok) {
-        throw new Error(`Failed to add borne: ${response.statusText}`);
+
+      if (!addressResponse.ok) {
+        throw new Error(`Failed to add address: ${addressResponse.statusText}`);
       }
-      const newBorne = await response.json();
-      console.log("New borne added:", newBorne);
-      // Naviguer vers la page de liste des bornes après l'ajout réussi
-      navigate(`/user-bornes/your-user-id`);
+
+      const addressResult = await addressResponse.json();
+      const addressId = addressResult.id;
+
+      const chargingPointData = {
+        name: fields.name,
+        status: status,
+        rate_per_hour: fields.ratePerHour,
+        plug_type: plugType,
+        acessinstruction: fields.accessInstructions,
+        power_kw: powerkw, // Remplacez par la valeur appropriée
+        adress_id_id: addressId,
+        users_id_id: userId // Remplacez par l'ID de l'utilisateur connecté
+      };
+
+      const chargingPointResponse = await fetch("http://localhost:8000/api/charging_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(chargingPointData)
+      });
+
+      if (!chargingPointResponse.ok) {
+        throw new Error(`Échec de l'ajout de la borne : ${chargingPointResponse.statusText}`);
+      }
+
+      const newChargingPoint = await chargingPointResponse.json();
+      console.log("New charging point added:", newChargingPoint);
+      navigate(`/user-bornes/${userId}`);
     } catch (error) {
-      console.error(error.message);
+      console.error("Erreur :", error.message);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 

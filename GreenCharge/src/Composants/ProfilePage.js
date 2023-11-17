@@ -6,11 +6,7 @@ import useStyles from '../styles/ProfilePageStyles';
 function ProfilePage() {
     const classes = useStyles();
     const [fields, setFields] = useState({
-        legalName: '',
-        email: '',
-        phoneNumber: '',
-        address: '',
-        emergencyContact: '',
+       
     });
 
     const handleInputChange = (e) => {
