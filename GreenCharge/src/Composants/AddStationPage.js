@@ -16,11 +16,11 @@ import {
 import useStyles from "../styles/AddStationStyles";
 import { useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
-import { UserContext } from '../UserContext';
+import { UserContext } from "../UserContext";
 
 function AddStationPage() {
   const userId = useContext(UserContext);
-  const [error, setError] = useState(''); // Pour gérer les erreurs
+  const [error, setError] = useState(""); // Pour gérer les erreurs
   const [isLoading, setIsLoading] = useState(false); // Pour afficher un indicateur de chargement
   const [currency, setCurrency] = useState("€");
   const [address, setAddress] = useState("");
@@ -80,25 +80,31 @@ function AddStationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
     try {
       const addressData = {
-        street_number: '123', // Remplacez par la valeur appropriée
+        street_number: "123", // Remplacez par la valeur appropriée
         street: address,
         city: city,
-        state: 'State', // Remplacez par la valeur appropriée
+        state: "State", // Remplacez par la valeur appropriée
         post_code: postalCode,
-        country: 'Country', // Remplacez par la valeur appropriée
-        title: 'Title', // Remplacez par la valeur appropriée
+        country: "Country", // Remplacez par la valeur appropriée
+        title: "Title", // Remplacez par la valeur appropriée
         longitude: 0.0, // Remplacez par la valeur appropriée
-        latitude: 0.0 // Remplacez par la valeur appropriée
+        latitude: 0.0, // Remplacez par la valeur appropriée
       };
 
-      const addressResponse = await fetch('http://localhost:8000/api/addresses', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addressData)
-      });
+      const addressResponse = await fetch(
+        "https://localhost:8000/api/addresses",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify(addressData),
+        }
+      );
 
       if (!addressResponse.ok) {
         throw new Error(`Failed to add address: ${addressResponse.statusText}`);
@@ -113,24 +119,33 @@ function AddStationPage() {
         rate_per_hour: fields.ratePerHour,
         plug_type: plugType,
         acessinstruction: fields.accessInstructions,
-        power_kw: powerkw, // Remplacez par la valeur appropriée
         adress_id_id: addressId,
-        users_id_id: userId // Remplacez par l'ID de l'utilisateur connecté
+        power_kw: powerkw,
+        users_id_id: userId,
+        availabilities: availabilities,
       };
 
-      const chargingPointResponse = await fetch("http://localhost:8000/api/charging_points", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(chargingPointData)
-      });
+      const chargingPointResponse = await fetch(
+        "https://localhost:8000/api/charging_points",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify(chargingPointData),
+        }
+      );
 
       if (!chargingPointResponse.ok) {
-        throw new Error(`Échec de l'ajout de la borne : ${chargingPointResponse.statusText}`);
+        throw new Error(
+          `Échec de l'ajout de la borne : ${chargingPointResponse.statusText}`
+        );
       }
 
       const newChargingPoint = await chargingPointResponse.json();
       console.log("New charging point added:", newChargingPoint);
-      navigate(`/user-bornes/${userId}`);
+      navigate(`/user-bornes/${newChargingPoint.users}`);
     } catch (error) {
       console.error("Erreur :", error.message);
       setError(error.message);
@@ -155,6 +170,17 @@ function AddStationPage() {
               onChange={handleInputChange}
               margin="normal"
               variant="outlined"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Puissance en kW"
+              name="powerkw"
+              value={powerkw}
+              onChange={(e) => setPowerKw(e.target.value)}
+              margin="normal"
+              variant="outlined"
+              type="number" // Assurez-vous que seuls des chiffres peuvent être entrés
               required
             />
             <TextField
