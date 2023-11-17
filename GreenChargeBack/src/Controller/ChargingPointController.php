@@ -33,6 +33,8 @@ class ChargingPointController extends AbstractController
         if (!$adress) {
             return $this->json(['error' => 'Adresse non trouvée'], Response::HTTP_BAD_REQUEST);
         }
+        $power_kw = $data['power_kw'];
+        intval($power_kw);
 
         $chargingPoint = new ChargingPoint();
         $chargingPoint->setName($data['name']);
@@ -60,6 +62,7 @@ class ChargingPointController extends AbstractController
         $entityManager->persist($chargingPoint);
         $entityManager->flush();
 
-        return $this->json(['id' => $chargingPoint->getId()]);
+        $userId = $chargingPoint->getUsersId();
+        return $this->json(['users'=>$userId, 'id' => $chargingPoint->getId()]);
     }
 }
