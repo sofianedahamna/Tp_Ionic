@@ -14,6 +14,7 @@ class ChargingPoint
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["chargingPoint_simple"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
@@ -49,7 +50,7 @@ class ChargingPoint
     #[ORM\JoinColumn(nullable: false)]
     private ?Users $UsersId = null;
 
-    #[ORM\OneToMany(mappedBy: 'chargingpoint', targetEntity: Availabilities::class)]
+    #[ORM\OneToMany(mappedBy: 'chargingpoint', targetEntity: Availabilities::class, cascade: ['remove'])]
     #[Groups(["chargingPoint_simple"])]
     private Collection $availabilities;
 
@@ -158,6 +159,11 @@ class ChargingPoint
     public function getUsersId(): ?Users
     {
         return $this->UsersId;
+    }
+    
+    public function getUserIdValue(): ?int
+    {
+        return $this->UsersId ? $this->UsersId->getId() : null;
     }
 
     public function setUsersId(?Users $UsersId): static
