@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem,
   IconButton,
-  InputAdornment,
 } from "@mui/material";
 import useStyles from "../styles/AddStationStyles";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,6 @@ function AddStationPage() {
   const userId = useContext(UserContext);
   const [error, setError] = useState(""); // Pour gérer les erreurs
   const [isLoading, setIsLoading] = useState(false); // Pour afficher un indicateur de chargement
-  const [currency, setCurrency] = useState("€");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
@@ -46,9 +44,6 @@ function AddStationPage() {
     accessInstructions: "",
     powerkw: "",
   });
-  const handleCurrencyChange = (event) => {
-    setCurrency(event.target.value);
-  };
   const handleAddAvailability = () => {
     setAvailabilities([...availabilities, newAvailability]);
     setNewAvailability({
@@ -145,7 +140,7 @@ function AddStationPage() {
 
       const newChargingPoint = await chargingPointResponse.json();
       console.log("New charging point added:", newChargingPoint);
-      navigate(`/user-bornes/${newChargingPoint.users}`);
+      navigate(`/user-bornes/${newChargingPoint.userId}`);
     } catch (error) {
       console.error("Erreur :", error.message);
       setError(error.message);
@@ -235,23 +230,6 @@ function AddStationPage() {
               variant="outlined"
               type="number" // Permet de s'assurer que seuls des chiffres peuvent être entrés
               required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Select
-                      variant="standard"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      disableUnderline
-                    >
-                      <MenuItem value="€">€</MenuItem>
-                      <MenuItem value="$">$</MenuItem>
-                      <MenuItem value="£">£</MenuItem>
-                      {/* ... autres monnaies */}
-                    </Select>
-                  </InputAdornment>
-                ),
-              }}
             />
 
             <FormControl fullWidth variant="outlined" margin="normal">
