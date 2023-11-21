@@ -20,7 +20,6 @@ class BornemapController extends AbstractController
         ]);
     }
 
-   
 
     #[Route('/bornemap', name: 'app_bornemap')]
     public function getBorne(ChargingPointRepository $chargingPointRepository, SerializerInterface $serializer): JsonResponse {

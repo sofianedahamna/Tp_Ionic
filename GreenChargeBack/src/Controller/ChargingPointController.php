@@ -13,9 +13,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Serializer\SerializerInterface;
 use App\Repository\ChargingPointRepository;
+use Psr\Log\LoggerInterface;
 
 class ChargingPointController extends AbstractController
 {
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     #[Route('/api/charging_points', name: 'add_charging_point', methods: ['POST'])]
     public function addChargingPoint(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
@@ -74,35 +81,6 @@ class ChargingPointController extends AbstractController
     }
     #[Route('/api/charging_points/{id}', name: 'delete_charging_point', methods: ['DELETE'])]
     public function deleteChargingPoint(int $id, EntityManagerInterface $entityManager): Response
-{
-    $chargingPoint = $entityManager->getRepository(ChargingPoint::class)->find($id);
-
-    if (!$chargingPoint) {
-        throw $this->createNotFoundException('Aucune borne trouvée pour l\'id ' . $id);
-    }
-
-    // Vérifiez si l'utilisateur connecté est autorisé à supprimer cette borne
-    $user = $this->getUser();
-    if (!$user || $user->getId() !== $chargingPoint->getUsersId()->getId()) {
-        throw new AccessDeniedException('Vous n\'êtes pas autorisé à supprimer cette borne.');
-    }
-
-    // Gérer la suppression de l'adresse si nécessaire
-    $adress = $chargingPoint->getAdressId();
-    // Vérifier si l'adresse est référencée par d'autres bornes
-    $otherChargingPoints = $entityManager->getRepository(ChargingPoint::class)->findBy(['AdressId' => $adress->getId()]);
-    if ($adress && count($otherChargingPoints) <= 1) { // Compte uniquement la borne actuelle
-        $entityManager->remove($adress);
-    }
-
-    $entityManager->remove($chargingPoint);
-    $entityManager->flush();
-
-    return $this->json(['message' => 'Borne supprimée avec succès'], Response::HTTP_OK);
-}
-
-    #[Route('/api/charging_points/{id}', name: 'update_charging_point', methods: ['PUT'])]
-    public function updateChargingPoint(int $id, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
     {
         $chargingPoint = $entityManager->getRepository(ChargingPoint::class)->find($id);
 
@@ -110,13 +88,51 @@ class ChargingPointController extends AbstractController
             throw $this->createNotFoundException('Aucune borne trouvée pour l\'id ' . $id);
         }
 
+        // Vérifiez si l'utilisateur connecté est autorisé à supprimer cette borne
         $user = $this->getUser();
-        if (!$user || $user->getId() !== $chargingPoint->getUsersId()) {
-            throw new AccessDeniedException('Vous n\'êtes pas autorisé à modifier cette borne.');
+        if (!$user || $user->getId() !== $chargingPoint->getUsersId()->getId()) {
+            throw new AccessDeniedException('Vous n\'êtes pas autorisé à supprimer cette borne.');
         }
 
-        $data = json_decode($request->getContent(), true);
+        // Gérer la suppression de l'adresse si nécessaire
+        $adress = $chargingPoint->getAdressId();
+        // Vérifier si l'adresse est référencée par d'autres bornes
+        $otherChargingPoints = $entityManager->getRepository(ChargingPoint::class)->findBy(['AdressId' => $adress->getId()]);
+        if ($adress && count($otherChargingPoints) <= 1) { // Compte uniquement la borne actuelle
+            $entityManager->remove($adress);
+        }
 
+        $entityManager->remove($chargingPoint);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Borne supprimée avec succès'], Response::HTTP_OK);
+    }
+
+    #[Route('/api/charging_points/{id}', name: 'update_charging_point', methods: ['PUT'])]
+    public function updateChargingPoint(int $id, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
+    {
+        $chargingPoint = $entityManager->getRepository(ChargingPoint::class)->find($id);
+
+        if (!$chargingPoint) {
+            $this->logger->error('Aucune borne trouvée pour l\'id', ['id' => $id]);
+            throw $this->createNotFoundException('Aucune borne trouvée pour l\'id ' . $id);
+        }
+
+        $user = $this->getUser();
+        $currentUserId = $user ? $user->getId() : null;
+
+        // Assurez-vous que getUsersId() renvoie un ID (int) et non un objet User
+        $chargingPointOwnerId = $chargingPoint->getUsersId()->getId();
+
+        if ($currentUserId !== $chargingPointOwnerId) {
+            $this->logger->warning('Accès refusé pour la modification de la borne', [
+                'currentUserId' => $currentUserId,
+                'chargingPointOwnerId' => $chargingPointOwnerId,
+                'chargingPointId' => $id
+            ]);
+            throw new AccessDeniedException('Vous n\'êtes pas autorisé à modifier cette borne.');
+        }
+        $data = json_decode($request->getContent(), true);
         // Mise à jour des propriétés de la borne
         $chargingPoint->setName($data['name']);
         $chargingPoint->setStatus($data['status']);
@@ -127,13 +143,12 @@ class ChargingPointController extends AbstractController
 
         // Mise à jour de l'adresse
         $adress = $chargingPoint->getAdressId();
-        $adress->setStreetNumber($data['street_number']);
-        $adress->setStreet($data['street']);
-        $adress->setCity($data['city']);
-        $adress->setState($data['state']);
-        $adress->setPostCode($data['post_code']);
-        $adress->setCountry($data['country']);
-        $adress->setTitle($data['title']);
+        $adress->setStreetNumber($data['adress']['street_number']);
+        $adress->setStreet($data['adress']['street']);
+        $adress->setCity($data['adress']['city']);
+        $adress->setState($data['adress']['state']);
+        $adress->setPostCode($data['adress']['post_code']);
+        $adress->setCountry($data['adress']['country']);
 
         foreach ($chargingPoint->getAvailabilities() as $availability) {
             $entityManager->remove($availability);
@@ -151,7 +166,7 @@ class ChargingPointController extends AbstractController
                 $entityManager->persist($availability);
             }
         }
-
+        $this->logger->info('Borne mise à jour avec succès', ['id' => $id]);
         $entityManager->flush();
 
         $chargingPointJson = $serializer->serialize($chargingPoint, 'json', ['groups' => 'chargingPoint_simple']);

@@ -160,7 +160,7 @@ class ChargingPoint
     {
         return $this->UsersId;
     }
-    
+
     public function getUserIdValue(): ?int
     {
         return $this->UsersId ? $this->UsersId->getId() : null;

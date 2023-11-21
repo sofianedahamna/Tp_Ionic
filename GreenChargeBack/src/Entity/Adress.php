@@ -29,6 +29,7 @@ class Adress
     private ?string $city = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(["chargingPoint_simple"])]
     private ?string $state = null;
 
     #[ORM\Column(length: 10)]
@@ -38,9 +39,6 @@ class Adress
     #[ORM\Column(length: 50)]
     #[Groups(["chargingPoint_simple"])]
     private ?string $country = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $title = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(["chargingPoint_simple"])]
@@ -135,18 +133,6 @@ class Adress
     public function setCountry(string $country): static
     {
         $this->country = $country;
-
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
 
         return $this;
     }

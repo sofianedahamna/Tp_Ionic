@@ -23,7 +23,6 @@ class AdressController extends AbstractController
         $adress->setState($data['state']);
         $adress->setPostCode($data['post_code']);
         $adress->setCountry($data['country']);
-        $adress->setTitle($data['title']);
         // Si vous gérez latitude et longitude, ajoutez-les ici
         // $adress->setLatitude($data['latitude']);
         // $adress->setLongitude($data['longitude']);
