@@ -13,30 +13,49 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { animated, useSpring } from "react-spring";
+import { format, parseISO } from "date-fns";
 
 function BorneCard({ borne, onDelete, onEdit, onCancel, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Mise à jour des states pour correspondre à la structure de votre base de données
+
   const [name, setName] = useState(borne.name);
   const [status, setStatus] = useState(borne.status);
-  const [ratePerHour, setRatePerHour] = useState(borne.rate_per_hour);
-  const [plugType, setPlugType] = useState(borne.plug_type);
+  const [ratePerHour, setRatePerHour] = useState(borne.ratePerHour);
+  const [plugType, setPlugType] = useState(borne.plug_type || "");
   const [accessInstructions, setAccessInstructions] = useState(
     borne.acessinstruction
   );
-  const [powerKw, setPowerKw] = useState(borne.power_kw);
+  const [powerKw, setPowerKw] = useState(borne.powerKw);
 
   // Gestion de l'adresse
-  const [streetNumber, setStreetNumber] = useState("");
-  const [street, setStreet] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [postCode, setPostCode] = useState("");
-  const [country, setCountry] = useState("");
+  const [streetNumber, setStreetNumber] = useState(
+    borne.AdressId ? borne.AdressId.streetNumber : ""
+  );
+  const [street, setStreet] = useState(
+    borne.AdressId ? borne.AdressId.street : ""
+  );
+  const [city, setCity] = useState(borne.AdressId ? borne.AdressId.city : "");
+  const [state, setState] = useState(borne.AdressId && borne.AdressId.state ? borne.AdressId.state : "");
+
+  const [postCode, setPostCode] = useState(
+    borne.AdressId ? borne.AdressId.postCode : ""
+  );
+  const [country, setCountry] = useState(
+    borne.AdressId ? borne.AdressId.country : ""
+  );
+
   // Gestion des disponibilités
-  const [availabilities, setAvailabilities] = useState([]);
+  const [availabilities, setAvailabilities] = useState(
+    borne.availabilities.map((a) => ({
+      startDate: format(parseISO(a.startDate), "yyyy-MM-dd"),
+      endDate: format(parseISO(a.endDate), "yyyy-MM-dd"),
+      startHour: format(parseISO(a.startHour), "HH:mm"),
+      endHour: format(parseISO(a.endHour), "HH:mm"),
+    }))
+  );
   const [newAvailability, setNewAvailability] = useState({
     startDate: "",
     endDate: "",
@@ -82,13 +101,16 @@ function BorneCard({ borne, onDelete, onEdit, onCancel, onUpdate }) {
       },
       availabilities,
     };
-
+console.log(updatedData);
     try {
       const response = await fetch(
         `https://localhost:8000/api/charging_points/${borne.id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`, // Remplacez yourJWTToken par votre token JWT
+          },
           body: JSON.stringify(updatedData),
         }
       );
@@ -139,9 +161,29 @@ function BorneCard({ borne, onDelete, onEdit, onCancel, onUpdate }) {
   };
 
   const handleCancelClick = () => {
-    // Nouveau
     setIsEditing(false);
-    onCancel(); // Nouveau
+    onCancel();
+
+    // Réinitialiser les états des champs avec les données initiales de la borne
+    setName(borne.name);
+    setStatus(borne.status);
+    setRatePerHour(borne.ratePerHour);
+    setPlugType(borne.plug_type);
+    setAccessInstructions(borne.acessinstruction);
+    setPowerKw(borne.powerKw);
+
+    // Réinitialiser les champs d'adresse si ces informations sont disponibles dans 'borne'
+    if (borne.adresse) {
+      setStreetNumber(borne.adresse.streetNumber || "");
+      setStreet(borne.adresse.street || "");
+      setCity(borne.adresse.city || "");
+      setState(borne.adresse.state || "");
+      setPostCode(borne.adresse.postCode || "");
+      setCountry(borne.adresse.country || "");
+    }
+
+    // Réinitialiser les disponibilités
+    setAvailabilities(borne.availabilities || []);
   };
 
   return (
@@ -217,6 +259,7 @@ function BorneCard({ borne, onDelete, onEdit, onCancel, onUpdate }) {
               margin="normal"
               variant="outlined"
             />
+
             <TextField
               fullWidth
               label="Code Postal"

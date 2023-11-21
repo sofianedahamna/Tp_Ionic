@@ -22,6 +22,10 @@ function AddStationPage() {
   const [error, setError] = useState(""); // Pour gérer les erreurs
   const [isLoading, setIsLoading] = useState(false); // Pour afficher un indicateur de chargement
   const [address, setAddress] = useState("");
+  const [street, setStreet] = useState("");
+  const [streetNumber, setStreetNumber] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [status, setStatus] = useState("ouvert"); // ou 'fermé' selon votre besoin
@@ -78,17 +82,15 @@ function AddStationPage() {
     setError("");
     try {
       const addressData = {
-        street_number: "123", // Remplacez par la valeur appropriée
-        street: address,
+        street_number: streetNumber,
+        street: street,
         city: city,
-        state: "State", // Remplacez par la valeur appropriée
+        state: state,
         post_code: postalCode,
-        country: "Country", // Remplacez par la valeur appropriée
-        title: "Title", // Remplacez par la valeur appropriée
-        longitude: 0.0, // Remplacez par la valeur appropriée
-        latitude: 0.0, // Remplacez par la valeur appropriée
+        country: country,
+        // longitude et latitude si disponibles
       };
-
+      console.log(addressData);
       const addressResponse = await fetch(
         "https://localhost:8000/api/addresses",
         {
@@ -180,12 +182,38 @@ function AddStationPage() {
             />
             <TextField
               fullWidth
-              label="Adresse"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              label="État/Région"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
               margin="normal"
               variant="outlined"
             />
+            <TextField
+              fullWidth
+              label="Pays"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              margin="normal"
+              variant="outlined"
+            />
+
+            <TextField
+              fullWidth
+              label="Numéro de Rue"
+              value={streetNumber}
+              onChange={(e) => setStreetNumber(e.target.value)}
+              margin="normal"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Rue"
+              value={street}
+              onChange={(e) => setStreet(e.target.value)}
+              margin="normal"
+              variant="outlined"
+            />
+
             <TextField
               fullWidth
               label="Ville"
@@ -231,7 +259,6 @@ function AddStationPage() {
               type="number" // Permet de s'assurer que seuls des chiffres peuvent être entrés
               required
             />
-
             <FormControl fullWidth variant="outlined" margin="normal">
               <InputLabel htmlFor="plugtype-select">Type de prise</InputLabel>
               <Select
