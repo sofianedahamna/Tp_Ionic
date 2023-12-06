@@ -12,11 +12,13 @@ import ApiService from "../../services/ApiService";
 import { fromEvent, Subscription } from "rxjs";
 import { buffer, debounceTime, filter } from "rxjs/operators";
 import "./TaskList.css";
+import { Share } from '@capacitor/share';
 
 interface Task {
   id: string;
   title: string;
   completed: boolean;
+  description?: string; // Assurez-vous que la description est incluse si nécessaire
 }
 
 const TaskList: React.FC = () => {
@@ -24,20 +26,15 @@ const TaskList: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const history = useHistory();
-  const taskRefs = useRef(
-    new Map<string, React.RefObject<HTMLIonLabelElement>>()
-  );
+  const taskRefs = useRef(new Map<string, React.RefObject<HTMLIonLabelElement>>());
 
   const fetchTasks = () => {
     ApiService.get<Task[]>("tasks").subscribe({
       next: (data) => {
-        const sortedTasks = data.sort(
-          (a, b) => Number(a.completed) - Number(b.completed)
-        );
+        const sortedTasks = [...data].sort((a, b) => Number(a.completed) - Number(b.completed));
         setTasks(sortedTasks);
       },
-      error: (err) =>
-        console.error("Erreur lors de la récupération des tâches:", err),
+      error: (err) => console.error("Erreur lors de la récupération des tâches:", err),
     });
   };
 
@@ -49,8 +46,7 @@ const TaskList: React.FC = () => {
     const subscriptions: Subscription[] = [];
 
     tasks.forEach((task) => {
-      const ref =
-        taskRefs.current.get(task.id) || React.createRef<HTMLIonLabelElement>();
+      const ref = taskRefs.current.get(task.id) || React.createRef<HTMLIonLabelElement>();
       taskRefs.current.set(task.id, ref);
 
       if (ref.current) {
@@ -73,12 +69,24 @@ const TaskList: React.FC = () => {
     };
   }, [tasks]);
 
+  const shareTask = async (task: Task) => {
+    try {
+      await Share.share({
+        title: 'Partager la Tâche',
+        text: `Tâche : ${task.title}\nDescription : ${task.description || ''}`,
+        url: 'http://http://localhost:8100//tasks/' + task.id,
+        dialogTitle: 'Partager cette tâche avec',
+      });
+    } catch (error) {
+      console.error('Erreur lors du partage de la tâche:', error);
+    }
+  };
+
   const toggleTaskCompletion = (task: Task) => {
     const updatedTask = { ...task, completed: !task.completed };
     ApiService.put(`tasks/${task.id}`, updatedTask).subscribe({
       next: () => fetchTasks(),
-      error: (err) =>
-        console.error("Erreur lors de la mise à jour de la tâche:", err),
+      error: (err) => console.error("Erreur lors de la mise à jour de la tâche:", err),
     });
   };
 
@@ -95,8 +103,7 @@ const TaskList: React.FC = () => {
     if (selectedTask) {
       ApiService.delete(`tasks/${selectedTask}`).subscribe({
         next: () => fetchTasks(),
-        error: (err) =>
-          console.error("Erreur lors de la suppression de la tâche:", err),
+        error: (err) => console.error("Erreur lors de la suppression de la tâche:", err),
       });
     }
     setShowDeleteAlert(false);
@@ -120,6 +127,7 @@ const TaskList: React.FC = () => {
               <IonButton onClick={() => toggleTaskCompletion(task)}>
                 {task.completed ? "Invalider" : "Valider"}
               </IonButton>
+              <IonButton onClick={() => shareTask(task)}>Partager</IonButton>
             </IonItem>
           ))}
         </IonList>
