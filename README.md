@@ -20,7 +20,9 @@ Ce projet est une application de gestion de tâches développée par Elyes et So
 ## Installation
 
 git clone https://github.com/sofianedahamna/Tp_Ionic.git
+
 cd chemin-vers-votre-projet
+
 npm install
 
 ionic serve
@@ -30,10 +32,6 @@ ionic serve
 Pour construire l'application pour un déploiement en production :
 
 ionic build --prod
-
-## Tests
-
-(Détails sur la manière d'exécuter les tests automatisés, si disponibles.)
 
 ## Contribuer
 
