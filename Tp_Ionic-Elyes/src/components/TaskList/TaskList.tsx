@@ -1,3 +1,4 @@
+// Importations nécessaires pour React, Ionic et RxJS
 import React, { useEffect, useState, useRef } from "react";
 import {
   IonList,
@@ -14,20 +15,25 @@ import { buffer, debounceTime, filter } from "rxjs/operators";
 import "./TaskList.css";
 import { Share } from '@capacitor/share';
 
+// Définition de l'interface pour une tâche
 interface Task {
   id: string;
   title: string;
   completed: boolean;
-  description?: string; // Assurez-vous que la description est incluse si nécessaire
+  description?: string;
 }
 
 const TaskList: React.FC = () => {
+  // État pour stocker les tâches, la tâche sélectionnée et l'affichage de l'alerte
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const history = useHistory();
+
+  // Références pour accéder aux éléments DOM des tâches
   const taskRefs = useRef(new Map<string, React.RefObject<HTMLIonLabelElement>>());
 
+  // Récupère et trie les tâches depuis le backend
   const fetchTasks = () => {
     ApiService.get<Task[]>("tasks").subscribe({
       next: (data) => {
@@ -38,10 +44,12 @@ const TaskList: React.FC = () => {
     });
   };
 
+  // Utilise useEffect pour charger les tâches au démarrage du composant
   useEffect(() => {
     fetchTasks();
   }, []);
 
+  // Utilise useEffect pour gérer la détection des doubles clics sur les tâches
   useEffect(() => {
     const subscriptions: Subscription[] = [];
 
@@ -64,17 +72,19 @@ const TaskList: React.FC = () => {
       }
     });
 
+    // Désabonne les souscriptions lors du démontage du composant
     return () => {
       subscriptions.forEach((sub) => sub.unsubscribe());
     };
   }, [tasks]);
 
+  // Partage une tâche en utilisant Capacitor Share
   const shareTask = async (task: Task) => {
     try {
       await Share.share({
         title: 'Partager la Tâche',
         text: `Tâche : ${task.title}\nDescription : ${task.description || ''}`,
-        url: 'http://http://localhost:8100//tasks/' + task.id,
+        url: 'http://localhost:8100/tasks/' + task.id,
         dialogTitle: 'Partager cette tâche avec',
       });
     } catch (error) {
@@ -82,6 +92,7 @@ const TaskList: React.FC = () => {
     }
   };
 
+  // Bascule le statut de complétion d'une tâche
   const toggleTaskCompletion = (task: Task) => {
     const updatedTask = { ...task, completed: !task.completed };
     ApiService.put(`tasks/${task.id}`, updatedTask).subscribe({
@@ -90,15 +101,18 @@ const TaskList: React.FC = () => {
     });
   };
 
+  // Redirige vers la page d'édition de la tâche
   const handleEdit = (taskId: string) => {
     history.push(`/edit-task/${taskId}`);
   };
 
+  // Sélectionne une tâche pour suppression et affiche une alerte de confirmation
   const handleDelete = (taskId: string) => {
     setSelectedTask(taskId);
     setShowDeleteAlert(true);
   };
 
+  // Confirme la suppression d'une tâche
   const confirmDelete = () => {
     if (selectedTask) {
       ApiService.delete(`tasks/${selectedTask}`).subscribe({
@@ -109,8 +123,10 @@ const TaskList: React.FC = () => {
     setShowDeleteAlert(false);
   };
 
+  // Rendu du composant TaskList
   return (
     <IonContent>
+      {/* Affiche la liste des tâches si elles existent */}
       {tasks.length > 0 ? (
         <IonList>
           {tasks.map((task) => (
